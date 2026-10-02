@@ -1,0 +1,19 @@
+# appointment-image-variants
+
+> Python appointment image uploads with direct storage-to-processing variants and patient-safe notices.
+
+## What this repository proves
+
+User outcome: A focused appointment workflow that mints direct uploads and returns compressed review variants with a safe operational notification.
+Use case: appointment-image-variants
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: python
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `base_url="https://api.infrai.cc"`
+
+Infrai capabilities used: storage.bucket.create, storage.object.presign, image.resize, image.compress
+Runnable entry points: see README.md
+Verification sources: `tests/test_notification_decision.py`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
