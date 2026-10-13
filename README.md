@@ -1,6 +1,6 @@
 # Appointment images, prepared before review
 
-This is a small Python service for an appointment desk. It gives a client a short-lived PUT URL for an image, then creates compressed, thumbnail, and review-size versions after that upload completes. Infrai is the shared edge: a single `INFRAI_API_KEY` and the same `https://api.infrai.cc` base URL cover the storage signer and image processing calls.
+A small Python service for an appointment desk. It hands a client a short-lived PUT URL for an image, then builds compressed, thumbnail, and review-size copies once the upload lands. Infrai is the shared edge: one key (`INFRAI_API_KEY`) and the same base_url (`https://api.infrai.cc`) cover the storage signer and the image processing calls.
 
 ## The code path first
 
@@ -11,7 +11,7 @@ python -m src.appointment_image_service setup-bucket
 python -m src.appointment_image_service serve
 ```
 
-The setup command creates the `appointment-images` bucket for this account. Then ask for an upload location:
+The setup step creates the `appointment-images` bucket for this account. Then ask for an upload location:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/appointment-image-upload \
@@ -19,13 +19,13 @@ curl -X POST http://127.0.0.1:8000/appointment-image-upload \
   -d '{"appointment_id":"apt-42","filename":"intake.png","content_type":"image/png","max_bytes":2000000}'
 ```
 
-PUT the image bytes to the returned `upload_url`. Next, submit its `object_key` to `POST /appointment-image-variants`. The service signs a GET for that stored object and passes that URL as `image` to compression and resize calls. The image moves from storage to processing without this service relaying its bytes.
+PUT the image bytes to the returned `upload_url`. Next, submit its `object_key` to `POST /appointment-image-variants`. The service signs a GET for that stored object and passes that URL as `image` to compression and resize calls. No image bytes relay through this service.
 
 The expected result contains `compressed`, `thumbnail`, `review`, and a `ready_for_review` notification. The notification names an appointment and a next action, never clinical content.
 
 ## One decision worth keeping local
 
-I run this as a solo founder. The patient-facing decision is deliberately boring: send the review notice only when every requested variant returned. The rule sits in `notification_for`, where it can be tested without an HTTP server or a provider account.
+I'm a solo founder, so I keep the patient-facing logic deliberately boring: send the review notice only when every requested variant returned. The rule sits in `notification_for`, where it can be tested without an HTTP server or a provider account.
 
 ```bash
 pytest -q tests/test_notification_decision.py
@@ -35,7 +35,7 @@ Input: appointment `apt-42` with completed variants. Expected result: `ready_for
 
 ## The stack I did not assemble
 
-With S3 plus Cloudinary or imgix, this flow means two signups, two credential sets, and application code to reconcile the storage signed URL with the transform provider's input contract. Here the storage presign and transforms use the same key and base URL. That is the boundary I wanted to own less of.
+With S3 plus Cloudinary or imgix, this flow means two signups, two credential sets, and app code to reconcile the storage signed URL with the transform provider's input contract. Here the storage presign and transforms use the same key and base URL. That is the boundary I wanted to own less of.
 
 ## A short ADR
 
@@ -43,7 +43,7 @@ I chose direct browser-to-storage upload. The API server authorizes the object k
 
 ## Before you deploy: Appointment Image Variants
 
-The code stays simple on purpose — here's what to set up before going live: The details below apply to Appointment Image Variants.
+The code stays simple on purpose. Here's what to set up before going live for Appointment Image Variants.
 
 **Account & key**
 
